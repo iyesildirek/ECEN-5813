@@ -14,8 +14,8 @@
 * to reverse a string using pointer arithmetic.
 *
 * @author Ismail Yesildirek
-* @date February 19 2019
-* @version 1.0
+* @date March 3 2019
+* @version 1.1
 *
 */
 
@@ -46,7 +46,7 @@ void swap(char **str1, char **str2)
 	// insert your code here
 	printf("swap function()\n");
 	printf("Prior to the swap function -> %s %s\n", *str1, *str2);
-	char **temp = *str1;
+	char *temp = *str1;
 	/*printf("temp points to address: %x and stored in address %p\n", *temp, temp);*/
 	*str1 = *str2;
 	/*printf("str1 is %s at address %p\n", *str1, str1);*/
@@ -60,14 +60,14 @@ void reverse(char *src, size_t length)
 	printf("\n-----------------------------------------------------\n");
 	printf("\nreverse function()\n");
 	printf("Prior to the reverse function -> %s\n", src);
-	char temp = *src;
+	char temp; // = *src;
 	/*printf("temp is %p\n", temp);*/
 	char *end = src + length-1; 
 	/*end -> last string address*/
 	/*printf("end is %p\n", &end);*/
-	*src = *end;
+	//*src = *end;
 	/*printf("New src is %p\n", &src);*/
-	*end = temp;
+	//*end = temp;
 	/*printf("New end is %p\n", &end);*/
 	/*Swap last char with first char*/
 	
@@ -78,10 +78,10 @@ void reverse(char *src, size_t length)
 
 	for (int i = 0; i < (length / 2)-1; i++)
 	{
-		src++;
-		end--;
 		temp = *src;
 		*src = *end;
 		*end = temp;
+		src++;
+		end--;		
 	}
 }
