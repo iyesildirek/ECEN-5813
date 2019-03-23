@@ -36,7 +36,7 @@ typedef struct
 	int Ini; /*head*/
 	int Outi; /*tail*/
 	int count; /*# of char buffer*/
-	char circularQueue[10];
+	char circularQueue[4];
 } ring_t;
 
 /****Header Files****/
@@ -45,8 +45,8 @@ typedef struct
 /****Global Variables****/
 #define TRUE 1
 #define FALSE 0
-const static int bufferSize = 10;
-char data[10] = { "          " };
+const static int bufferSize = 4; 
+char data[4] = { "    " };
 int queueFull = 0;
 
 /****Main Code****/
@@ -61,9 +61,7 @@ int main(void)
 	buffer_struct = init(bufferSize);
 
 	/*Add data to empty buffer*/
-	if ((buffer_struct != NULL) || (buffer_struct->Buffer != NULL) || (buffer_struct->circularQueue != NULL) || \
-		(buffer_struct->count != NULL) || (buffer_struct->Ini != NULL) || (buffer_struct->Length != NULL) || \
-		(buffer_struct->Outi != NULL))
+	if ((buffer_struct != NULL) || (buffer_struct->Buffer != NULL) || (buffer_struct->circularQueue != NULL))
 	{
 		printf("This program creates a circular buffer of size %d\n", bufferSize);
 		while (1)
@@ -74,9 +72,7 @@ int main(void)
 			{
 				printf("Please enter a char for the circular buffer: ");
 				scanf(" %c", &charInput);
-				//insertStatus = insert(buffer_struct, data[0]);
 				insertStatus = insert(buffer_struct, charInput);
-			//	printf("Char *buffer is: %s",buffer_struct->Buffer);
 			}
 			else if (userInput == 1)
 			{
@@ -96,7 +92,6 @@ int main(void)
 			{
 				printf("Enter a valid command (0, 1, or 2\n");
 			}
-			//	printf("The address of buffre_struct is: %x\n", &buffer_struct);
 		}
 	}
 	else
@@ -122,12 +117,18 @@ ring_t* init(int length)
 
 int insert(ring_t *ring, char data)
 {
-	if ((ring != NULL) || (ring->Buffer != NULL) || (ring->circularQueue != NULL) || \
-		(ring->count != NULL) || (ring->Ini != NULL) || (ring->Length != NULL) || \
-		(ring->Outi != NULL))
+	if ((ring != NULL) || (ring->Buffer != NULL) || (ring->circularQueue != NULL))
 	{
 		/*Next head index*/
-		int nextIndex = ring->Ini + 1;
+		int nextIndex = 0;
+		if (ring->count == 0)
+		{
+			nextIndex = 1;
+		}
+		else
+		{
+			nextIndex = (ring->Ini + 1) & (ring->Length-1);
+		}
 
 		/*Check if buffer is full*/
 		if (nextIndex == ring->Outi)
@@ -139,16 +140,22 @@ int insert(ring_t *ring, char data)
 		/*Check if head index needs to circle back in buffer*/
 		else if (nextIndex >= ring->Length)
 		{
-			nextIndex = 0;
+			ring->circularQueue[ring->Ini] = data; /*Add data to queue position Ini*/
+			ring->count++;	/*number of insert()*/
+			ring->Ini = 0;
 		}
 
 		else
 		{
-			//do nothing
+			if (ring->Ini == ring->Length)
+			{
+				ring->Ini = 0;
+			}
+			ring->circularQueue[ring->Ini] = data; /*Add data to queue position Ini*/
+			ring->count++;	/*number of insert()*/
+			ring->Ini++; /*increment queue index*/
 		}
-		ring->circularQueue[ring->Ini] = data; /*Add data to queue position Ini*/
-		ring->count++;	/*number of insert()*/
-		ring->Ini++; /*increment queue index*/
+
 		return 0;
 }
 	else
@@ -160,9 +167,7 @@ int insert(ring_t *ring, char data)
 
 int rm(ring_t *ring, char *data)
 {
-	if ((ring != NULL) || (ring->Buffer != NULL) || (ring->circularQueue != NULL) || \
-		(ring->count != NULL) || (ring->Ini != NULL) || (ring->Length != NULL) || \
-		(ring->Outi != NULL))
+	if ((ring != NULL) || (ring->Buffer != NULL) || (ring->circularQueue != NULL))
 	{
 		/*Next tail index*/
 		int nextIndex = ring->Outi + 1;
@@ -200,12 +205,14 @@ int rm(ring_t *ring, char *data)
 
 int entries(ring_t *ring)
 {
-	if ((ring != NULL) || (ring->Buffer != NULL) || (ring->circularQueue != NULL) || \
-		(ring->count != NULL) || (ring->Ini != NULL) || (ring->Length != NULL) || \
-		(ring->Outi != NULL))
+	if ((ring != NULL) || (ring->Buffer != NULL) || (ring->circularQueue != NULL))
 	{
 		int temp;
 		temp = ring->count;
+		for (int i = 0; i < ring->Length; i++)
+		{
+			printf("Array Index[%d] has char: %c\n", i, ring->circularQueue[i]);
+		}
 		return temp;
 	}
 	else
@@ -214,3 +221,4 @@ int entries(ring_t *ring)
 		return -1;
 	}
 }
+
