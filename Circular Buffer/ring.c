@@ -53,8 +53,11 @@ int queueFull = 0;
 int main(void)
 {
 	ring_t *buffer_struct = malloc(sizeof(ring_t));
-	int insertStatus, rmStatus, entryStatus, userInput;
-	int insertFlag = 0;
+	int insertStatus = 0;
+	int rmStatus =0;
+	int entryStatus =0;
+	char userInput = ' ';
+//	int insertFlag = 0;
 	char charInput;
 
 	/*Initialize buffer and set length*/
@@ -67,30 +70,56 @@ int main(void)
 		while (1)
 		{
 			printf("Please enter 0 to insert, 1 to remove, 2 to check the number of entries in the circular buffer or 3 to exit\n");
-			scanf(" %d", &userInput);
-			if (userInput == 0)
+			scanf(" %c", &userInput);
+			fflush(stdin);                 /* Flushing keyboard buffer from previous input*/
+			if (userInput == '0')
 			{
 				printf("Please enter a char for the circular buffer: ");
 				scanf(" %c", &charInput);
 				insertStatus = insert(buffer_struct, charInput);
+				if (insertStatus == 1)
+				{
+					printf("Circular Buffer is Full. Remove an item with the rm()\n");
+				}
+				else if (insertStatus == -1)
+				{
+					printf("NULL pointer provided\n");
+				}
+				else
+				{
+					printf("Buffer head is now at index: %d\n",(buffer_struct->Ini)-1);
+				}
 			}
-			else if (userInput == 1)
+			else if (userInput == '1')
 			{
-				rmStatus = rm(buffer_struct, &(buffer_struct->Buffer));
+				rmStatus = rm(buffer_struct,(buffer_struct->Buffer));
+				//add "&" to avoid seg fault or re-write funct to accept char **
+				if (rmStatus == 1)
+				{
+					printf("Circular Buffer is Empty. Add an item with the insert()\n");
+				}
+				else if (rmStatus == -1)
+				{
+					printf("NULL pointer provided\n");
+				}
+				else
+				{
+					printf("Buffer tail is now at index: %d\n",buffer_struct->Outi);
+				}
 			}
-			else if (userInput == 2)
+			else if (userInput == '2')
 			{
 				entryStatus = entries(buffer_struct);
 				printf("The number of entries are %d\n", entryStatus);
 			}
-			else if (userInput == 3)
+			else if (userInput == '3')
 			{
 				printf("Good Bye!\n");
 				return 0;
 			}
 			else
 			{
-				printf("Enter a valid command (0, 1, or 2\n");
+				printf("Enter a valid command (0, 1, 2, or 3)\n");
 			}
 		}
 	}
@@ -111,7 +140,7 @@ ring_t* init(int length)
 	temp->Ini = 0;
 	temp->Outi = 0;
 	temp->count = 0;
-	temp->circularQueue[length];
+	//temp->circularQueue[length];
 	return temp;
 }
 
@@ -131,10 +160,9 @@ int insert(ring_t *ring, char data)
 		}
 
 		/*Check if buffer is full*/
-		if (nextIndex == ring->Outi)
+		if ((nextIndex == ring->Outi) &&(ring->count !=0))
 		{
-		printf("Circular Buffer is Full. Remove an item with the rm()\n");
-		return -1;
+		return 1;
 		}
 
 		/*Check if head index needs to circle back in buffer*/
@@ -175,8 +203,7 @@ int rm(ring_t *ring, char *data)
 		/*Check if buffer is empty*/
 		if (ring->Ini == ring->Outi)
 		{
-			printf("Circular Buffer is Empty. Add an item with the insert()\n");
-			return -1;
+			return 1;
 		}
 
 		/*Check if tail index needs to circle back in buffer*/
@@ -190,7 +217,7 @@ int rm(ring_t *ring, char *data)
 		}
 
 		/*Read char and store in *Buffer prior to clearing buffer[Ouit]*/
-		*data = ring->circularQueue[ring->Outi];
+		//*data = ring->circularQueue[ring->Outi];
 		ring->circularQueue[ring->Outi] = '0'; /*clear buffer*/
 		ring->Outi++;
 		ring->count--;	/*Reduce number of insert()*/
@@ -198,7 +225,6 @@ int rm(ring_t *ring, char *data)
 	}
 	else
 	{
-		printf("NULL pointer provided\n");
 		return -1;
 	}
 }
